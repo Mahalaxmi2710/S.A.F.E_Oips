@@ -5,33 +5,51 @@ from flask import send_from_directory
 from datetime import datetime
 import sqlite3
 import os
+from functools import wraps
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'evidence_files'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'docx', 'txt'}
-UPLOAD_FOLDER = 'uploads'  # same folder used in upload_evidence
+UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'docx', 'txt'}
 
-
+app.secret_key = 'supersecretkey'
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-app.secret_key = 'supersecretkey'
+# ----------------- RBAC Middleware -----------------
 
-# --- DB SETUP ---
+def role_required(required_roles):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if 'police_id' not in session:
+                return redirect('/login')
+            role = session.get('role')
+            if role not in required_roles:
+                return "Access Denied: You do not have permission to view this page."
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+# ----------------- Database Setup -----------------
+
 def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
+
     c.execute('''CREATE TABLE IF NOT EXISTS users (
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    police_id TEXT UNIQUE NOT NULL,
-                   password TEXT NOT NULL
+                   password TEXT NOT NULL,
+                   role TEXT NOT NULL DEFAULT 'officer'
                 )''')
+
     c.execute('''CREATE TABLE IF NOT EXISTS cases (
                id INTEGER PRIMARY KEY AUTOINCREMENT,
                title TEXT NOT NULL,
@@ -46,38 +64,33 @@ def init_db():
                    description TEXT,
                    file_path TEXT,
                    uploaded_by TEXT,
-                   uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                   uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                   FOREIGN KEY (case_id) REFERENCES cases(id)
                 )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS evidence (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    filename TEXT NOT NULL,
-    case_id INTEGER NOT NULL,
-    uploaded_by TEXT,
-    upload_time TEXT,
-    FOREIGN KEY (case_id) REFERENCES cases(id)
-)
-''')
-
 
     conn.commit()
     conn.close()
 
 init_db()
 
-# --- ROUTES ---
+# ----------------- Routes -----------------
+
 @app.route('/')
 def home():
     return redirect('/login')
 
 @app.route('/register', methods=['GET', 'POST'])
+@role_required(['admin'])
 def register():
     if request.method == 'POST':
         police_id = request.form['police_id']
         password = generate_password_hash(request.form['password'])
+        role = request.form.get('role', 'officer')
+
         try:
             conn = sqlite3.connect('database.db')
             c = conn.cursor()
-            c.execute("INSERT INTO users (police_id, password) VALUES (?, ?)", (police_id, password))
+            c.execute("INSERT INTO users (police_id, password, role) VALUES (?, ?, ?)", (police_id, password, role))
             conn.commit()
             conn.close()
             return redirect('/login')
@@ -92,11 +105,13 @@ def login():
         password = request.form['password']
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
-        c.execute("SELECT password FROM users WHERE police_id = ?", (police_id,))
+        c.execute("SELECT password, role FROM users WHERE police_id = ?", (police_id,))
         result = c.fetchone()
         conn.close()
+
         if result and check_password_hash(result[0], password):
             session['police_id'] = police_id
+            session['role'] = result[1]
             return redirect('/dashboard')
         else:
             return "Invalid credentials."
@@ -106,13 +121,11 @@ def login():
 def dashboard():
     if 'police_id' not in session:
         return redirect('/login')
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', role=session.get('role'))
 
 @app.route('/add_case', methods=['GET', 'POST'])
+@role_required(['officer', 'admin'])
 def add_case():
-    if 'police_id' not in session:
-        return redirect('/login')
-
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
@@ -121,7 +134,7 @@ def add_case():
 
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
-        c.execute("INSERT INTO cases (title, description, officer, date_time) VALUES (?, ?, ?, ?)", 
+        c.execute("INSERT INTO cases (title, description, officer, date_time) VALUES (?, ?, ?, ?)",
                   (title, description, officer, date_time))
         conn.commit()
         conn.close()
@@ -129,25 +142,19 @@ def add_case():
 
     return render_template('add_case.html')
 
-
 @app.route('/view_cases')
+@role_required(['officer', 'admin', 'writer', 'constable'])
 def view_cases():
-    if 'police_id' not in session:
-        return redirect('/login')
-
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute("SELECT id, title FROM cases")
     cases = c.fetchall()
     conn.close()
-
     return render_template('view_cases.html', cases=cases)
 
 @app.route('/case/<int:case_id>')
+@role_required(['officer', 'admin', 'writer', 'constable'])
 def view_case_detail(case_id):
-    if 'police_id' not in session:
-        return redirect('/login')
-
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute("SELECT title, description, officer FROM cases WHERE id = ?", (case_id,))
@@ -159,12 +166,9 @@ def view_case_detail(case_id):
     else:
         return "Case not found"
 
-
 @app.route('/upload_evidence', methods=['GET', 'POST'])
+@role_required(['officer', 'admin'])
 def upload_evidence():
-    if 'police_id' not in session:
-        return redirect('/login')
-
     if request.method == 'POST':
         case_id = request.form['case_id']
         description = request.form['description']
@@ -186,7 +190,6 @@ def upload_evidence():
         else:
             return "Invalid file type."
 
-    # Fetch all case IDs for dropdown
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute("SELECT id, title FROM cases")
@@ -195,10 +198,8 @@ def upload_evidence():
     return render_template('upload_evidence.html', cases=cases)
 
 @app.route('/download_evidence')
+@role_required(['admin', 'officer', 'constable'])  # constables can now download
 def download_evidence():
-    if 'police_id' not in session:
-        return redirect('/login')
-
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute('''
@@ -209,12 +210,8 @@ def download_evidence():
     evidence_list = c.fetchall()
     conn.close()
 
-    # Extract just the filename from file_path for download link
     evidence_list = [(e[0], os.path.basename(e[1]), e[2], e[3]) for e in evidence_list]
-
     return render_template('download_evidence.html', evidence_list=evidence_list)
-
-
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -223,6 +220,7 @@ def uploaded_file(filename):
 @app.route('/logout')
 def logout():
     session.pop('police_id', None)
+    session.pop('role', None)
     return redirect('/login')
 
 if __name__ == '__main__':
