@@ -2,8 +2,23 @@
 <html>
 <head><title>Download Evidence</title></head>
 <body>
-  <h2>Download Evidence</h2>
-  <p>Feature coming soon...</p>
-  <a href="/dashboard">Back to Dashboard</a>
+  <h2>Download Evidence Files</h2>
+  <table border="1">
+    <tr>
+      <th>Case ID</th>
+      <th>Case Title</th>
+      <th>Filename</th>
+      <th>Action</th>
+    </tr>
+    {% for evidence in evidence_list %}
+    <tr>
+      <td>{{ evidence[2] }}</td>
+      <td>{{ evidence[3] }}</td>
+      <td>{{ evidence[1] }}</td>
+      <td><a href="{{ url_for('uploaded_file', filename=evidence[1]) }}" download>Download</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <br><a href="/dashboard">Back to Dashboard</a>
 </body>
 </html>
