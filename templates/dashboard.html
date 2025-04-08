@@ -1,13 +1,28 @@
 <!DOCTYPE html>
 <html>
-<head><title>Dashboard</title></head>
+<head>
+  <title>Dashboard</title>
+</head>
 <body>
   <h2>Welcome to PoliceOps Dashboard</h2>
+  <p>Logged in as: {{ session['police_id'] }} (Role: {{ session['role'] }})</p>
   <ul>
-    <li><a href="/add_case">Add New Case</a></li>
-    <li><a href="/view_cases">View Case Files</a></li>
-    <li><a href="/upload_evidence">Upload Evidence</a></li>
-    <li><a href="/download_evidence">Download Evidence</a></li>
+    {% if session['role'] == 'admin' or session['role'] == 'officer' %}
+      <li><a href="/add_case">Add New Case</a></li>
+    {% endif %}
+
+    {% if session['role'] in ['admin', 'officer', 'writer', 'constable'] %}
+      <li><a href="/view_cases">View Case Files</a></li>
+    {% endif %}
+
+    {% if session['role'] in ['admin', 'officer'] %}
+      <li><a href="/upload_evidence">Upload Evidence</a></li>
+    {% endif %}
+
+    {% if session['role'] in ['admin', 'officer', 'constable'] %}
+      <li><a href="/download_evidence">Download Evidence</a></li>
+    {% endif %}
+
     <li><a href="/logout">Logout</a></li>
   </ul>
 </body>
