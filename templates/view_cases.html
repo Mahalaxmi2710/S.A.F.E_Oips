@@ -3,7 +3,18 @@
 <head><title>View Cases</title></head>
 <body>
   <h2>View Case Files</h2>
-  <p>Feature coming soon...</p>
+
+  {% if cases %}
+    <ul>
+      {% for case in cases %}
+        <li><a href="/case/{{ case[0] }}">{{ case[1] }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No cases found.</p>
+  {% endif %}
+
+  <br>
   <a href="/dashboard">Back to Dashboard</a>
 </body>
 </html>
