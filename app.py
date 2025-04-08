@@ -25,12 +25,19 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_DEFAULT_SENDER'] = 'noreply@policeops.local'
 
+# Session Timeout Config
+app.permanent_session_lifetime = timedelta(minutes=1)
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    session.modified = True
+
 mail = Mail(app)
+otp_store = {}
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
-otp_store = {}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
