@@ -80,7 +80,6 @@ def home():
     return redirect('/login')
 
 @app.route('/register', methods=['GET', 'POST'])
-@role_required(['admin'])
 def register():
     if request.method == 'POST':
         police_id = request.form['police_id']
