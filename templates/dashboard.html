@@ -1,30 +1,120 @@
 <!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>PoliceOips Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      font-family: 'Courier New', monospace;
+      color: #39ff14;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Circuit animation */
+    .circuit {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background-image: 
+        linear-gradient(90deg, rgba(57,255,20,0.2) 1px, transparent 1px),
+        linear-gradient(rgba(57,255,20,0.2) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: moveCircuit 20s linear infinite;
+      z-index: 0;
+      opacity: 0.25;
+    }
+
+    @keyframes moveCircuit {
+      0% {
+        transform: translate(0, 0);
+      }
+      100% {
+        transform: translate(-40px, -40px);
+      }
+    }
+
+    .dashboard {
+      background-color: rgba(15, 15, 15, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      border: 2px solid #39ff14;
+      box-shadow: 0 0 20px #39ff14;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      z-index: 2;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #9cff8c;
+    }
+
+    p {
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 15px 0;
+    }
+
+    a {
+      text-decoration: none;
+      background-color: #39ff14;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      transition: 0.3s;
+      display: inline-block;
+    }
+
+    a:hover {
+      background-color: #9cff8c;
+      color: #000;
+      box-shadow: 0 0 10px #39ff14;
+    }
+  </style>
 </head>
 <body>
-  <h2>Welcome to PoliceOps Dashboard</h2>
-  <p>Logged in as: {{ session['police_id'] }} (Role: {{ session['role'] }})</p>
-  <ul>
-    {% if session['role'] == 'admin' or session['role'] == 'officer' %}
-      <li><a href="/add_case">Add New Case</a></li>
-    {% endif %}
-
-    {% if session['role'] in ['admin', 'officer', 'writer', 'constable'] %}
-      <li><a href="/view_cases">View Case Files</a></li>
-    {% endif %}
-
-    {% if session['role'] in ['admin', 'officer'] %}
-      <li><a href="/upload_evidence">Upload Evidence</a></li>
-    {% endif %}
-
-    {% if session['role'] in ['admin', 'officer', 'constable'] %}
-      <li><a href="/download_evidence">Download Evidence</a></li>
-    {% endif %}
-
-    <li><a href="/logout">Logout</a></li>
-  </ul>
+  <div class="circuit"></div>
+  <div class="dashboard">
+    <h2>Welcome to PoliceOips Dashboard</h2>
+    <p>Logged in as: <strong>{{ session['police_id'] }}</strong> (Role: <strong>{{ session['role'] }}</strong>)</p>
+    <ul>
+      {% if session['role'] == 'admin' or session['role'] == 'officer' %}
+        <li><a href="/add_case">Add New Case</a></li>
+      {% endif %}
+      {% if session['role'] in ['admin', 'officer', 'writer', 'constable'] %}
+        <li><a href="/view_cases">View Case Files</a></li>
+      {% endif %}
+      {% if session['role'] in ['admin', 'officer'] %}
+        <li><a href="/upload_evidence">Upload Evidence</a></li>
+      {% endif %}
+      {% if session['role'] in ['admin', 'officer', 'constable'] %}
+        <li><a href="/download_evidence">Download Evidence</a></li>
+      {% endif %}
+      <li><a href="/logout">Logout</a></li>
+    </ul>
+  </div>
 </body>
 </html>
+
