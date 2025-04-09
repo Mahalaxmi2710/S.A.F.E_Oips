@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Download Evidence</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <h2>Download Evidence Files</h2>
@@ -11,17 +10,24 @@
       <th>Case ID</th>
       <th>Case Title</th>
       <th>Filename</th>
+      <th>Severity</th>
       <th>Action</th>
     </tr>
     {% for evidence in evidence_list %}
     <tr>
-      <td>{{ evidence[2] }}</td>
-      <td>{{ evidence[3] }}</td>
-      <td>{{ evidence[1] }}</td>
-      <td><a href="{{ url_for('uploaded_file', filename=evidence[1]) }}" download>Download</a></td>
+      <td>{{ evidence[2] }}</td> <!-- Case ID -->
+      <td>{{ evidence[3] }}</td> <!-- Case Title -->
+      <td>{{ evidence[1].split('/')[-1] }}</td> <!-- Filename from file_path -->
+      <td>{{ 'Severe' if evidence[4] else 'Normal' }}</td> <!-- Severity -->
+      <td>
+        <form action="{{ url_for('download_individual_evidence', evidence_id=evidence[0]) }}" method="get">
+          <button type="submit">Download</button>
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </table>
-  <br><a href="/dashboard">Back to Dashboard</a>
+  <br>
+  <a href="/dashboard">Back to Dashboard</a>
 </body>
 </html>
