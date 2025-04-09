@@ -61,6 +61,28 @@ SAFE OIPS (Secure Access Framework for Enhanced Online Integrated Police Service
   - Combines cryptographic and non-cryptographic techniques for holistic security
 
 ---
+## 🚀 Getting Started
+
+To get a local copy of the project up and running:
+
+### Step 1: Clone the repository
+
+```bash
+git clone https://github.com/your-username/SAFE-OIPS.git
+cd SAFE-OIPS
+```
+
+### Step 2: Install required libraries
+``` bash
+pip install -r requirements.txt
+```
+### Step 3: Run the project
+``` bash
+python app.py
+```
+
+
+---
 
 ## 👥 Team Members
 
