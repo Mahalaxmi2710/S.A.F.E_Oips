@@ -1,54 +1,160 @@
-<!-- templates/upload_evidence.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload Evidence</title>
+  <meta charset="UTF-8">
+  <title>Upload Evidence</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background: black;
+      color: #39ff14;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .grid-bg {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background-image:
+        linear-gradient(90deg, rgba(57,255,20,0.07) 1px, transparent 1px),
+        linear-gradient(rgba(57,255,20,0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridMove 30s linear infinite;
+      opacity: 0.25;
+      z-index: 0;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-40px, -40px); }
+    }
+
+    .container {
+      z-index: 2;
+      background-color: rgba(20, 20, 20, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px #39ff14;
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #9cff8c;
+      text-shadow: 0 0 5px #39ff14;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    select, input[type="file"], textarea, input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #39ff14;
+      border-radius: 10px;
+      background-color: #111;
+      color: #39ff14;
+      font-size: 15px;
+      box-shadow: inset 0 0 6px #39ff14;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    input[type="submit"] {
+      margin-top: 20px;
+      background-color: #39ff14;
+      color: #000;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #9cff8c;
+      box-shadow: 0 0 12px #39ff14;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      background-color: #39ff14;
+      color: #000;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    a:hover {
+      background-color: #9cff8c;
+      box-shadow: 0 0 10px #39ff14;
+    }
+
+    #passwordSection {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <h2>Upload Evidence</h2>
-
+  <div class="grid-bg"></div>
+  <div class="container">
+    <h2>Upload Digital Evidence</h2>
     <form method="POST" enctype="multipart/form-data">
-        <label for="case_id">Select Case:</label>
-        <select name="case_id" required>
-            {% for case in cases %}
-                <option value="{{ case[0] }}">{{ case[1] }}</option>
-            {% endfor %}
-        </select><br><br>
+      <label for="case_id">Select Case:</label>
+      <select name="case_id" required>
+        {% for case in cases %}
+          <option value="{{ case[0] }}">{{ case[1] }}</option>
+        {% endfor %}
+      </select>
 
-        <label for="file">Choose File:</label>
-        <input type="file" name="file" required><br><br>
+      <label for="file">Choose File:</label>
+      <input type="file" name="file" required>
 
-        <label for="description">Description:</label><br>
-        <textarea name="description" rows="4" cols="50" required></textarea><br><br>
+      <label for="description">Description:</label>
+      <textarea name="description" rows="4" required></textarea>
 
-        <label for="severity">Severity:</label>
-        <select name="severity" id="severity" required onchange="togglePassword()">
-            <option value="">--Select Severity--</option>
-            <option value="normal">Normal</option>
-            <option value="severe">Severe</option>
-        </select><br><br>
+      <label for="severity">Severity:</label>
+      <select name="severity" id="severity" required onchange="togglePassword()">
+        <option value="">--Select Severity--</option>
+        <option value="normal">Normal</option>
+        <option value="severe">Severe</option>
+      </select>
 
-        <div id="passwordSection" style="display: none;">
-            <label for="password">Enter Password (for severe evidence):</label>
-            <input type="password" name="password"><br><br>
-        </div>
+      <div id="passwordSection">
+        <label for="password">Enter Password (for severe evidence):</label>
+        <input type="password" name="password">
+      </div>
 
-        <input type="submit" value="Upload Evidence">
+      <input type="submit" value="Upload Evidence">
     </form>
+    <a href="/dashboard">← Back to Dashboard</a>
+  </div>
 
-    <br>
-    <a href="/dashboard">Back to Dashboard</a>
-
-    <script>
-        function togglePassword() {
-            var severity = document.getElementById("severity").value;
-            var passwordDiv = document.getElementById("passwordSection");
-            if (severity === "severe") {
-                passwordDiv.style.display = "block";
-            } else {
-                passwordDiv.style.display = "none";
-            }
-        }
-    </script>
+  <script>
+    function togglePassword() {
+      var severity = document.getElementById("severity").value;
+      var passwordDiv = document.getElementById("passwordSection");
+      passwordDiv.style.display = severity === "severe" ? "block" : "none";
+    }
+  </script>
 </body>
 </html>
