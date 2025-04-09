@@ -115,7 +115,8 @@ def login():
         attempt = login_attempts.get(police_id, {'count': 0, 'block_time': None})
         if attempt['block_time'] and now < attempt['block_time']:
             remaining = int((attempt['block_time'] - now).total_seconds() // 60)
-            return f"Too many failed attempts. Please try again in {remaining} minutes."
+            return render_template("error.html", message=f"🚫 Too many failed attempts. Please try again in {remaining} minutes.")
+
 
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
@@ -140,7 +141,8 @@ def login():
                 login_attempts[police_id]['count'] += 1
                 if login_attempts[police_id]['count'] >= 3:
                     login_attempts[police_id]['block_time'] = now + timedelta(minutes=5)
-            return "Invalid credentials."
+            return render_template("error.html", message="Invalid credentials. Please try again.")
+
 
     return render_template('login.html')
 
@@ -186,9 +188,11 @@ def add_case():
                   (title, description, officer, date_time))
         conn.commit()
         conn.close()
-        return "Case added successfully! <br><a href='/dashboard'>Back to Dashboard</a>"
 
-    return render_template('add_case.html')
+        # New line: render a themed success page
+        return render_template("success.html", message="Case added successfully!")
+
+    return render_template("add_case.html")  # Or your form page if GET request
 
 @app.route('/view_cases')
 @role_required(['officer', 'admin', 'writer', 'constable'])
@@ -252,7 +256,8 @@ def upload_evidence():
         conn.commit()
         conn.close()
 
-        return "Evidence uploaded successfully!<br><a href='/dashboard'>Back to Dashboard</a>"
+        # Render themed success page
+        return render_template("success.html", message="Evidence uploaded successfully!")
 
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
@@ -260,6 +265,7 @@ def upload_evidence():
     cases = c.fetchall()
     conn.close()
     return render_template('upload_evidence.html', cases=cases)
+
 
 @app.route('/download_evidence')
 @role_required(['admin'])
