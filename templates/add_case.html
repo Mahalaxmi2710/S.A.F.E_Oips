@@ -1,17 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Add Case</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000;
+      font-family: 'Courier New', Courier, monospace;
+      color: #39ff14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #0d0d0d;
+      border: 2px solid #39ff14;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #39ff14;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #111;
+      color: #39ff14;
+      border: 1px solid #39ff14;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      box-shadow: 0 0 5px #39ff14;
+    }
+
+    button {
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #39ff14;
+      color: #000;
+      box-shadow: 0 0 10px #39ff14;
+    }
+
+    a {
+      color: #39ff14;
+      display: inline-block;
+      margin-top: 15px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: #9cff8c;
+    }
+  </style>
 </head>
 <body>
-  <h2>Add New Case</h2>
-  <form method="POST" action="/add_case">
-    Title: <input type="text" name="title" required><br><br>
-    Description: <br><textarea name="description" rows="4" cols="50" required></textarea><br><br>
-    <button type="submit">Add Case</button>
-  </form>
-  <br>
-  <a href="/dashboard">Back to Dashboard</a>
+  <div class="container">
+    <h2>➕ Add New Case</h2>
+    <form method="POST" action="/add_case">
+      <input type="text" name="title" placeholder="Case Title" required>
+      <textarea name="description" rows="5" placeholder="Case Description" required></textarea>
+      <button type="submit">Add Case</button>
+    </form>
+    <a href="/dashboard">← Back to Dashboard</a>
+  </div>
 </body>
 </html>
+
