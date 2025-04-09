@@ -17,12 +17,14 @@ UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'docx', 'txt'}
 app.secret_key = 'supersecretkey'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
-
+# Create uploads folder if not exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 otp_store = {}
+login_attempts = {}  # Track failed login attempts
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -107,6 +109,14 @@ def login():
     if request.method == 'POST':
         police_id = request.form['police_id']
         password = request.form['password']
+        now = datetime.now()
+
+        # Check block status
+        attempt = login_attempts.get(police_id, {'count': 0, 'block_time': None})
+        if attempt['block_time'] and now < attempt['block_time']:
+            remaining = int((attempt['block_time'] - now).total_seconds() // 60)
+            return f"Too many failed attempts. Please try again in {remaining} minutes."
+
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
         c.execute("SELECT password, role FROM users WHERE police_id = ?", (police_id,))
@@ -114,14 +124,24 @@ def login():
         conn.close()
 
         if result and check_password_hash(result[0], password):
+            # Success - clear attempts
+            login_attempts.pop(police_id, None)
             otp = str(random.randint(100000, 999999))
-            otp_store[police_id] = {'otp': otp, 'expires': datetime.now() + timedelta(minutes=5)}
+            otp_store[police_id] = {'otp': otp, 'expires': now + timedelta(minutes=5)}
             send_otp_to_console(police_id, otp)
             session['temp_police_id'] = police_id
             session['temp_role'] = result[1]
             return redirect('/verify_otp')
         else:
+            # Failed attempt
+            if police_id not in login_attempts:
+                login_attempts[police_id] = {'count': 1, 'block_time': None}
+            else:
+                login_attempts[police_id]['count'] += 1
+                if login_attempts[police_id]['count'] >= 3:
+                    login_attempts[police_id]['block_time'] = now + timedelta(minutes=5)
             return "Invalid credentials."
+
     return render_template('login.html')
 
 @app.route('/verify_otp', methods=['GET', 'POST'])
@@ -188,7 +208,6 @@ def view_case_detail(case_id):
     c.execute("SELECT title, description, officer FROM cases WHERE id = ?", (case_id,))
     case = c.fetchone()
     conn.close()
-
     if case:
         return render_template('case_detail.html', case=case)
     else:
@@ -217,7 +236,6 @@ def upload_evidence():
             key = PBKDF2(password, salt, dkLen=32, count=100000)
             cipher = AES.new(key, AES.MODE_EAX)
             ciphertext, tag = cipher.encrypt_and_digest(file_bytes)
-
             encrypted_data = cipher.nonce + tag + ciphertext
             with open(filepath, 'wb') as f:
                 f.write(encrypted_data)
@@ -258,7 +276,6 @@ def download_evidence():
     conn.close()
     return render_template('download_evidence.html', evidence_list=evidence_list)
 
-
 @app.route('/download_evidence/<int:evidence_id>', methods=['GET', 'POST'])
 @role_required(['admin'])
 def download_individual_evidence(evidence_id):
@@ -274,14 +291,12 @@ def download_individual_evidence(evidence_id):
     file_path, is_severe, salt_hex = record
 
     if request.method == 'GET':
-        # ✅ First visit: show prompt if severe, else download
         if is_severe:
             return render_template('password_prompt.html', is_severe=True, evidence_id=evidence_id)
         else:
             return send_file(file_path, as_attachment=True)
 
     elif request.method == 'POST':
-        # ✅ After submitting password
         if is_severe:
             password = request.form['password']
             salt = bytes.fromhex(salt_hex)
