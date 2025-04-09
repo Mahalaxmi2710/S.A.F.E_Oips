@@ -1,33 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Download Evidence</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background: black;
+      color: #39ff14;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .grid-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background-image:
+        linear-gradient(90deg, rgba(57,255,20,0.1) 1px, transparent 1px),
+        linear-gradient(rgba(57,255,20,0.1) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: moveGrid 25s linear infinite;
+      z-index: 0;
+      opacity: 0.2;
+    }
+
+    @keyframes moveGrid {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-40px, -40px); }
+    }
+
+    .container {
+      z-index: 2;
+      padding: 40px;
+      max-width: 90%;
+      width: 1000px;
+      background-color: rgba(15, 15, 15, 0.95);
+      border-radius: 20px;
+      margin-top: 60px;
+      box-shadow: 0 0 30px #39ff14;
+    }
+
+    h2 {
+      text-align: center;
+      color: #9cff8c;
+      margin-bottom: 30px;
+      font-size: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #111;
+      color: #39ff14;
+      box-shadow: 0 0 15px #39ff14;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #39ff14;
+    }
+
+    th {
+      background-color: #0f0f0f;
+      font-weight: bold;
+      text-shadow: 0 0 5px #39ff14;
+    }
+
+    tr:nth-child(even) {
+      background-color: #1a1a1a;
+    }
+
+    button {
+      background-color: #39ff14;
+      color: #000;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #9cff8c;
+      box-shadow: 0 0 10px #39ff14;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #39ff14;
+      color: #000;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    .back-link:hover {
+      background-color: #9cff8c;
+      box-shadow: 0 0 10px #39ff14;
+    }
+  </style>
 </head>
 <body>
-  <h2>Download Evidence Files</h2>
-  <table border="1">
-    <tr>
-      <th>Case ID</th>
-      <th>Case Title</th>
-      <th>Filename</th>
-      <th>Severity</th>
-      <th>Action</th>
-    </tr>
-    {% for evidence in evidence_list %}
-    <tr>
-      <td>{{ evidence[2] }}</td> <!-- Case ID -->
-      <td>{{ evidence[3] }}</td> <!-- Case Title -->
-      <td>{{ evidence[1].split('/')[-1] }}</td> <!-- Filename from file_path -->
-      <td>{{ 'Severe' if evidence[4] else 'Normal' }}</td> <!-- Severity -->
-      <td>
-        <form action="{{ url_for('download_individual_evidence', evidence_id=evidence[0]) }}" method="get">
-          <button type="submit">Download</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-  <br>
-  <a href="/dashboard">Back to Dashboard</a>
+  <div class="grid-bg"></div>
+  <div class="container">
+    <h2>Download Evidence Files</h2>
+    <table>
+      <tr>
+        <th>Case ID</th>
+        <th>Case Title</th>
+        <th>Filename</th>
+        <th>Severity</th>
+        <th>Action</th>
+      </tr>
+      {% for evidence in evidence_list %}
+      <tr>
+        <td>{{ evidence[2] }}</td>
+        <td>{{ evidence[3] }}</td>
+        <td>{{ evidence[1].split('/')[-1] }}</td>
+        <td>{{ 'Severe' if evidence[4] else 'Normal' }}</td>
+        <td>
+          <form action="{{ url_for('download_individual_evidence', evidence_id=evidence[0]) }}" method="get">
+            <button type="submit">Download</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <a class="back-link" href="/dashboard">← Back to Dashboard</a>
+  </div>
 </body>
 </html>
