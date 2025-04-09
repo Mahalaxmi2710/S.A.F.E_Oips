@@ -68,7 +68,7 @@ To get a local copy of the project up and running:
 ### Step 1: Clone the repository
 
 ```bash
-git clone https://github.com/your-username/SAFE-OIPS.git
+git clone https://github.com/Mahalaxmi2710/SAFE-OIPS.git
 cd SAFE-OIPS
 ```
 
