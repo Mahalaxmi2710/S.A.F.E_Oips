@@ -1,16 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Login</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background: black;
+      color: #39ff14;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .circuit-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background-image:
+        linear-gradient(90deg, rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+        linear-gradient(rgba(57, 255, 20, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: scrollGrid 40s linear infinite;
+      z-index: 0;
+      opacity: 0.1;
+    }
+
+    @keyframes scrollGrid {
+      from { transform: translate(0, 0); }
+      to { transform: translate(-50px, -50px); }
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 50px;
+      color: #39ff14;
+      text-shadow: 0 0 4px #39ff14;
+      margin-bottom: 10px;
+      z-index: 1;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      font-size: 24px;
+      color: #39ff14;
+      text-shadow: 0 0 6px #39ff14;
+      margin-bottom: 20px;
+      z-index: 1;
+    }
+
+    form {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px #39ff14;
+      z-index: 1;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      background: black;
+      border: 1px solid #39ff14;
+      color: #39ff14;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #39ff14;
+      color: black;
+      border: none;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: black;
+      color: #39ff14;
+      border: 1px solid #39ff14;
+      box-shadow: 0 0 10px #39ff14;
+    }
+
+    a {
+      color: #39ff14;
+      text-decoration: none;
+      margin-top: 15px;
+      display: inline-block;
+      z-index: 1;
+    }
+
+    a:hover {
+      text-shadow: 0 0 6px #39ff14;
+    }
+  </style>
 </head>
 <body>
+  <div class="circuit-bg"></div>
+
+  <h1>S.A.F.E OIPS</h1>
   <h2>Login</h2>
+
   <form method="POST">
-    Police ID: <input type="text" name="police_id"><br>
-    Password: <input type="password" name="password"><br>
+    Police ID: <input type="text" name="police_id" required><br>
+    Password: <input type="password" name="password" required><br>
     <button type="submit">Login</button>
   </form>
+
   <a href="/register">Register</a>
 </body>
 </html>
