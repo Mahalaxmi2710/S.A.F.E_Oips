@@ -1,6 +1,6 @@
 # SAFE OIPS (Secure Access for Enforcement)
 
-SAFE OIPS (Secure Access Framework for Enhanced Online Integrated Police Services) is a high-assurance security framework designed to protect sensitive law enforcement systems against modern cyber threats. Built upon the foundational OIPS platform, it introduces advanced security protocols such as Multi-Factor Authentication (MFA), Role-Based Access Control (RBAC), and hybrid cryptographic techniques using AES and RSA.
+SAFE OIPS (Secure Access Framework for Enhanced Online Integrated Police Services) is a high-assurance security framework designed to protect sensitive law enforcement systems against modern cyber threats. Built upon the foundational OIPS platform, it introduces advanced security protocols such as Multi-Factor Authentication (MFA), Role-Based Access Control (RBAC), and cryptographic enforcement using AES and PBKDF2
 
 ---
 
