@@ -14,9 +14,8 @@ SAFE OIPS (Secure Access Framework for Enhanced Online Integrated Police Service
   - NIST RBAC standard with hierarchical roles and dynamic session-based permissions
   - Ensures least-privilege access and separation of duties
 
-- **Hybrid Cryptography:**
+- **Cryptography Enforcement:**
   - AES in EAX mode (confidentiality + integrity)
-  - RSA for secure key exchange
   - PBKDF2 for key strengthening with salt
 
 - **Non-Cryptographic Defenses:**
